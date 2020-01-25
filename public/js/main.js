@@ -90,28 +90,31 @@ new Vue({
   el: '.cards-table',
   methods: {
     removeReadonlyAttr: function(cardId) {
-      let elementButton = document.getElementById('card-input'+cardId)
-      elementButton.removeAttribute('readonly')
+      let elementButton = document.getElementById('card-input'+cardId).removeAttribute('readonly')
     },
     updateCard: function(listId, cardId) {
       let newName = document.getElementById('card-input'+cardId).value
       if (newName == '') {
-        axios.post('/list/delete', {
+        axios.post('/list/delete-card', {
           'list_id': listId,
           'card_id': cardId,
           'name': newName
         }).then(response => {
-          alert('delete card success!')
+          alert('delete task success!')
           console.log(response)
           location.reload()
         })
       } else {
-        axios.post('/list/update', {
+        axios.post('/list/update-card', {
           'list_id': listId,
           'card_id': cardId,
           'name': newName
         }).then(response => {
-          alert('update card success!')
+          alert('update task success!')
+          if (response.data = 'duplicate') {
+            alert('duplicate task name.')
+            return
+          }
           console.log(response)
           location.reload()
         })

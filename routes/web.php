@@ -177,13 +177,13 @@ Route::get('/board/{board_id}/list/{list_id}', function(Request $request, $board
 
 
 Route::post('/list/add-new-card', function(Request $request) {
-    if (sizeof(card::where('name', $request->card_name)->get()) > 0) {
+    if (sizeof(card::where('task', $request->card_name)->get()) > 0) {
         return redirect('/board'.'/'.$request->board_id.'/list/'.$request->list_id)->with(['message' => 'Duplicate card name.', 'type' => 'danger']);
     } else {
         $greaterOrder = DB::table('cards')->orderBy('order', 'desc')->first();
         $new_card = new card();
         $new_card->list_id = $request->list_id;
-        $new_card->name = $request->card_name;
+        $new_card->task = $request->card_name;
         if ($greaterOrder == null) {
             $new_card->order = 1;
         } else {
@@ -197,7 +197,7 @@ Route::post('/list/add-new-card', function(Request $request) {
 
 });
 
-Route::post('/list/delete', function(Request $request) {
+Route::post('/list/delete-card', function(Request $request) {
     $current_card = DB::table('cards')->where(['id' => $request->card_id, 'list_id' => $request->list_id])->get();
     if (sizeof( $current_card) > 0) {
         DB::table('cards')->where(['list_id' => $request->list_id, 'id' => $request->card_id])->delete();
@@ -206,13 +206,15 @@ Route::post('/list/delete', function(Request $request) {
 });
 
 
-Route::post('/list/update', function (Request $request) {
+Route::post('/list/update-card', function (Request $request) {
     $current_card = DB::table('cards')->where(['id' => $request->card_id, 'list_id' => $request->list_id])->get();
+    if (sizeof(DB::table('cards')->where(['task' => $request->name])->get()) > 0) {
+        return 'duplicate';
+    }
     if (sizeof( $current_card) > 0) {
         DB::table('cards')->where(['list_id' => $request->list_id, 'id' => $request->card_id])->update([
-            'name' => $request->name
+            'task' => $request->name
         ]);
-        return 'deleted';
     }
 });
 
